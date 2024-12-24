@@ -1,0 +1,33 @@
+name: esp32releasetest
+on:
+  push:
+    branches:
+      - main
+jobs:
+  upload-release:
+    runs-on: docker
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Compile Sketch with platformio
+        run: bash ci/compile-pio.sh
+
+      - name: Upload firmware bin 
+        uses: https://code.forgejo.org/actions/upload-artifact@v3
+        with:
+          name: firmware
+          path: bin/
+
+      - uses: actions/forgejo-release@v2
+        with:
+          verbose: true
+          repo: ${{ GITHUB_REPOSITORY}}
+          tag: "1.2"
+          override: true
+          direction: upload
+          url: http://62.11.55.65:3000
+          token: ${{ secrets.TOKEN }}
+          release-dir: bin/
+          release-notes: "firmware update"
+
